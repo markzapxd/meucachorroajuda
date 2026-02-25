@@ -12,9 +12,9 @@
       </nav>
 
       <div class="actions">
-        <button class="btn-try">
-          Especial
-        </button>
+        <NuxtLink to="/chat" class="btn-try">
+          Chat
+        </NuxtLink>
         <button class="menu-btn">
           <div class="menu-icon"></div>
         </button>
@@ -92,6 +92,8 @@
   border-radius: 100px;
   font-weight: 700;
   font-size: 14px;
+  text-decoration: none;
+  display: inline-block;
   transition: transform 0.2s ease, background 0.2s ease;
 }
 

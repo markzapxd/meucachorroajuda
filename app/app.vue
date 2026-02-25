@@ -1,6 +1,5 @@
 <script setup lang="ts">
-import { onMounted } from 'vue';
-import html2canvas from 'html2canvas';
+import { ref, onMounted } from 'vue';
 
 useSeoMeta({
   title: 'Ajude pitoco',
@@ -34,49 +33,38 @@ useHead({
   style: [
     {
       innerHTML: `
-        body { 
+        html, body { 
           background-color: #0d0d0d !important; 
           color: white; 
           margin: 0; 
+          padding: 0;
           font-family: 'Outfit', sans-serif;
         }
+        .app { background-color: #0d0d0d; }
       `
     }
   ]
 })
 
-const takeScreenshot = async () => {
-  try {
-    const canvas = await html2canvas(document.body);
-    const imgData = canvas.toDataURL('image/png');
-    console.log('Screenshot captured:', imgData);
-    alert('Screenshot captured! Check the console.');
-  } catch (error) {
-    console.error('Error capturing screenshot:', error);
+const isLoaded = ref(false)
+
+onMounted(() => {
+  // Mark as loaded after hydration
+  isLoaded.value = true
+  
+  // Generate or get persistent ID for chat
+  if (!localStorage.getItem('chat_user_id')) {
+    localStorage.setItem('chat_user_id', Math.random().toString(36).substring(2, 10).toUpperCase())
   }
-};
-
-const getCookiesObject = (): Record<string, string> => {
-    return document.cookie
-        .split(';')
-        .map(c => c.trim())
-        .filter(c => c.length > 0)
-        .reduce((acc, cookie) => {
-            const [name, ...rest] = cookie.split('=');
-            if (name) {
-                acc[name] = rest.join('=');
-            }
-            return acc;
-        }, {} as Record<string, string>);
-
-}
+})
 
 </script>
 
 <template>
-  <div class="app">
+  <div class="app" :class="{ 'loaded': isLoaded }">
     <AppHeader />
     <NuxtPage />
+    <ChatWidget />
   </div>
 </template>
 
@@ -84,5 +72,11 @@ const getCookiesObject = (): Record<string, string> => {
 <style>
 .app {
   min-height: 100vh;
+  opacity: 0;
+  transition: opacity 0.4s ease-in;
+}
+
+.app.loaded {
+  opacity: 1;
 }
 </style>
