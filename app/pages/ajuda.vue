@@ -2,7 +2,7 @@
   <div class="ajuda-page">
     <div class="glass-card fade-in">
       <div class="avatar-section">
-        <!-- Taunt Message moved here -->
+        <!-- Taunt Message moved herae -->
         <Transition name="fade">
           <div v-if="showTaunt" class="taunt-bubble">
             tenta me pegar otario
@@ -41,9 +41,10 @@
           href="https://www.youtube.com/watch?v=dQw4w9WgXcQ&list=RDdQw4w9WgXcQ&start_radio=1" 
           target="_blank" 
           class="flee-button"
-          :class="{ 'meta-vision': fleeCount >= 12, 'trembling': fleeCount > 0 && fleeCount < 12 }"
+          :class="{ 'meta-vision': fleeCount >= 12, 'trembling': fleeCount > 0 && fleeCount < 12, 'not-clickable': fleeCount < 12 }"
           :style="buttonPos"
           @mouseenter="handleHover"
+          @click="fleeCount < 12 && $event.preventDefault()"
         >
           AJUDAR
         </a>
@@ -221,7 +222,7 @@ onUnmounted(() => {
   font-weight: 800;
   text-transform: uppercase;
   letter-spacing: 1px;
-  transition: transform 0.05s linear;
+  transition: transform 0.05s linear, opacity 0.2s ease;
   box-shadow: 0 4px 15px rgba(0, 210, 255, 0.3);
   text-align: center;
   border: 1px solid rgba(255, 255, 255, 0.3);
@@ -229,6 +230,10 @@ onUnmounted(() => {
   cursor: pointer;
   z-index: 10;
   position: absolute;
+}
+
+.not-clickable {
+  cursor: default;
 }
 
 .ghost {
