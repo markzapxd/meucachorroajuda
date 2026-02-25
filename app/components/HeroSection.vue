@@ -65,7 +65,7 @@ const scrollToDetails = () => {
 .hero {
   position: relative;
   height: 100vh;
-  min-height: 700px;
+  min-height: 600px;
   display: flex;
   align-items: center;
   overflow: hidden;

@@ -42,7 +42,7 @@
 
 <style scoped>
 .details-section {
-  padding: 100px 0 300px 0;
+  padding: 80px 0 100px 0;
   background-color: var(--bg-color);
 }
 

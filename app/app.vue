@@ -1,6 +1,15 @@
 <script setup lang="ts">
 import html2canvas from 'html2canvas';
 
+useSeoMeta({
+  title: 'Ajude pitoco',
+  ogTitle: 'Ajude pitoco',
+  description: 'Site feito para ajudar meu cachorro que esta passando por momento dificeis',
+  ogDescription: 'Site feito para ajudar meu cachorro que esta passando por momento dificeis',
+  ogImage: '/images/hero.png', // Falback image if available
+  twitterCard: 'summary_large_image',
+})
+
 const takeScreenshot = async () => {
   try {
     const canvas = await html2canvas(document.body);
@@ -30,7 +39,6 @@ const getCookiesObject = (): Record<string, string> => {
 </script>
 
 <template>
-  <title>Meu Cachorro Ajuda</title>
   <div class="app">
     <AppHeader />
     <main>
