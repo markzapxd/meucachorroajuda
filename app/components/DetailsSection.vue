@@ -6,7 +6,7 @@
         <!-- Card 1 -->
         <div class="story-card fade-in" style="animation-delay: 0.1s">
           <div class="card-image">
-            <img src="/images/story-1.png" alt="Cachorro doente" />
+            <img src="/images/orelhakirk.webp" alt="Cachorro doente" />
           </div>
           <div class="card-content">
             <h3>Situação Crítica</h3>
