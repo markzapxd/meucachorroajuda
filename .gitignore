@@ -7,6 +7,7 @@
 dist
 
 # Netlify deploy
+netlify_deploy
 
 # Node dependencies
 node_modules
