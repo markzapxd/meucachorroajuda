@@ -41,7 +41,7 @@
           href="https://www.youtube.com/watch?v=dQw4w9WgXcQ&list=RDdQw4w9WgXcQ&start_radio=1" 
           target="_blank" 
           class="flee-button"
-          :class="{ 'meta-vision': fleeCount >= 12, 'trembling': fleeCount > 0 && fleeCount < 12, 'not-clickable': fleeCount < 12 }"
+          :class="{ 'meta-vision': fleeCount >= 12, 'trembling': fleeCount > 0 && fleeCount < 13, 'not-clickable': fleeCount < 12 }"
           :style="buttonPos"
           @mouseenter="handleHover"
           @click="fleeCount < 12 && $event.preventDefault()"
