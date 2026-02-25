@@ -58,11 +58,12 @@
             <input 
               v-model="inputMessage" 
               @keyup.enter="sendMessage"
-              placeholder="Conversar em #chat" 
+              :placeholder="isBlocked ? 'Aguarde ' + blockedUntil + 's...' : 'Conversar em #chat'" 
               maxlength="100"
+              :disabled="isBlocked"
             />
-            <button class="send-button" @click="sendMessage" :disabled="!inputMessage.trim()">
-              Enviar
+            <button class="send-button" @click="sendMessage" :disabled="!inputMessage.trim() || isBlocked">
+              {{ isBlocked ? blockedUntil + 's' : 'Enviar' }}
             </button>
           </div>
         </div>
@@ -80,9 +81,12 @@ definePageMeta({
 
 const myUserId = ref('')
 const inputMessage = ref('')
-const messages = ref<{ id: number; userId: string; text: string; timestamp: string }[]>([])
+const messages = ref<{ id: number; userId: string; text: string; timestamp: string, isSystem?: boolean }[]>([])
 const messageContainer = ref<HTMLElement | null>(null)
-let socket: WebSocket | null = null
+const isBlocked = ref(false)
+const blockedUntil = ref(0)
+let pollInterval: any = null
+let blockTimer: any = null
 
 const formatTime = (isoString: string) => {
   const date = new Date(isoString)
@@ -118,38 +122,70 @@ const scrollBottom = async () => {
   }
 }
 
-const sendMessage = () => {
-  if (!inputMessage.value.trim() || !socket) return
-  const payload = {
-    userId: myUserId.value,
-    text: inputMessage.value.trim()
+const fetchMessages = async () => {
+  try {
+    const data: any = await $fetch('/api/chat')
+    if (data && data.messages) {
+      // Only update if message count changed to avoid unnecessary re-renders
+      if (data.messages.length !== messages.value.length) {
+        messages.value = data.messages
+        scrollBottom()
+      }
+    }
+  } catch (e) {
+    console.error("[ChatPage] Poll failed:", e)
   }
-  socket.send(JSON.stringify(payload))
-  inputMessage.value = ''
 }
 
-const connectWS = () => {
-  const isSecure = window.location.protocol === 'https:'
-  const url = `${isSecure ? 'wss:' : 'ws:'}//${window.location.host}/api/chat?userId=${myUserId.value}`
-  console.log("[ChatPage] Connecting to WS:", url)
-  socket = new WebSocket(url)
-  socket.onmessage = (event) => {
-    try {
-      const payload = JSON.parse(event.data)
+const sendMessage = async () => {
+  const text = inputMessage.value.trim()
+  if (!text || isBlocked.value) return
+  
+  const originalText = inputMessage.value
+  inputMessage.value = '' // Optimistic clear
+
+  try {
+    const response: any = await $fetch('/api/chat', {
+      method: 'POST',
+      body: {
+        userId: myUserId.value,
+        text
+      }
+    })
+    
+    if (response.type === 'error') {
+      // If error (like spam limit), show a system message and restore input
+      messages.value.push({
+        id: Date.now(),
+        userId: 'System',
+        text: response.message,
+        timestamp: new Date().toISOString(),
+        isSystem: true
+      })
+      inputMessage.value = originalText
       
-      if (payload.type === 'history') {
-        messages.value = payload.messages
-      } else if (payload.type === 'message') {
-        messages.value.push(payload.data)
+      if (response.retryAfter) {
+        isBlocked.value = true
+        blockedUntil.value = response.retryAfter
+        if (blockTimer) clearInterval(blockTimer)
+        blockTimer = setInterval(() => {
+          blockedUntil.value--
+          if (blockedUntil.value <= 0) {
+            isBlocked.value = false
+            clearInterval(blockTimer)
+            blockTimer = null
+          }
+        }, 1000)
       }
       
       scrollBottom()
-    } catch (e) {
-      console.error("[ChatPage] Chat parsing error:", e)
+    } else {
+      // Fetch immediately to show the new message
+      fetchMessages()
     }
-  }
-  socket.onclose = () => {
-    setTimeout(connectWS, 3000)
+  } catch (e) {
+    console.error("[ChatPage] Send failed:", e)
+    inputMessage.value = originalText
   }
 }
 
@@ -160,11 +196,16 @@ onMounted(() => {
     localStorage.setItem('chat_user_id', storedId)
   }
   myUserId.value = storedId
-  connectWS()
+  
+  // Initial fetch
+  fetchMessages()
+  
+  // Start polling every 3 seconds
+  pollInterval = setInterval(fetchMessages, 3000)
 })
 
 onUnmounted(() => {
-  if (socket) socket.close()
+  if (pollInterval) clearInterval(pollInterval)
 })
 </script>
 

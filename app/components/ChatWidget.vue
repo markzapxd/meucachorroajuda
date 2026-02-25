@@ -62,8 +62,9 @@
           <input 
             v-model="inputMessage" 
             @keyup.enter="sendMessage" 
-            placeholder="Conversar em #chat" 
+            :placeholder="isBlocked ? 'Aguarde ' + blockedUntil + 's...' : 'Conversar em #chat'" 
             maxlength="100"
+            :disabled="isBlocked"
           />
         </div>
       </div>
@@ -76,10 +77,13 @@ import { ref, onMounted, onUnmounted, nextTick, watch } from 'vue'
 
 const isOpen = ref(false)
 const inputMessage = ref('')
-const messages = ref<{ id: number; userId: string; text: string; timestamp: string }[]>([])
+const messages = ref<{ id: number; userId: string; text: string; timestamp: string, isSystem?: boolean }[]>([])
 const messageContainer = ref<HTMLElement | null>(null)
 const myUserId = ref('')
-let socket: WebSocket | null = null
+const isBlocked = ref(false)
+const blockedUntil = ref(0)
+let pollInterval: any = null
+let blockTimer: any = null
 
 const toggleChat = () => {
   isOpen.value = !isOpen.value
@@ -96,9 +100,9 @@ const formatTimeTiny = (isoString: string) => {
 }
 
 const isCompact = (msg: any, index: number) => {
-  if (index === 0) return false
+  if (index === 0 || msg.isSystem) return false
   const prevMsg = messages.value[index - 1]
-  if (!prevMsg) return false
+  if (!prevMsg || prevMsg.isSystem) return false
   const timeDiff = new Date(msg.timestamp).getTime() - new Date(prevMsg.timestamp).getTime()
   return prevMsg.userId === msg.userId && timeDiff < 5 * 60 * 1000
 }
@@ -117,33 +121,65 @@ const scrollBottom = async () => {
   }
 }
 
-const sendMessage = () => {
-  if (!inputMessage.value.trim() || !socket) return
-  socket.send(JSON.stringify({ userId: myUserId.value, text: inputMessage.value.trim() }))
-  inputMessage.value = ''
+const fetchMessages = async () => {
+  try {
+    const data: any = await $fetch('/api/chat')
+    if (data && data.messages) {
+      if (data.messages.length !== messages.value.length) {
+        messages.value = data.messages
+        scrollBottom()
+      }
+    }
+  } catch (e) {
+    console.error("[ChatWidget] Poll failed:", e)
+  }
 }
 
-const connectWS = () => {
-  const isSecure = window.location.protocol === 'https:'
-  const url = `${isSecure ? 'wss:' : 'ws:'}//${window.location.host}/api/chat?userId=${myUserId.value}`
-  socket = new WebSocket(url)
-  socket.onmessage = (event) => {
-    console.log("[ChatWidget] Message received:", event.data)
-    try {
-      const payload = JSON.parse(event.data)
+const sendMessage = async () => {
+  const text = inputMessage.value.trim()
+  if (!text || isBlocked.value) return
+  
+  const originalText = inputMessage.value
+  inputMessage.value = ''
+
+  try {
+    const response: any = await $fetch('/api/chat', {
+      method: 'POST',
+      body: { userId: myUserId.value, text }
+    })
+    
+    if (response.type === 'error') {
+      messages.value.push({
+        id: Date.now(),
+        userId: 'System',
+        text: response.message,
+        timestamp: new Date().toISOString(),
+        isSystem: true
+      })
+      inputMessage.value = originalText
       
-      if (payload.type === 'history') {
-        messages.value = payload.messages
-      } else if (payload.type === 'message') {
-        messages.value.push(payload.data)
+      if (response.retryAfter) {
+        isBlocked.value = true
+        blockedUntil.value = response.retryAfter
+        if (blockTimer) clearInterval(blockTimer)
+        blockTimer = setInterval(() => {
+          blockedUntil.value--
+          if (blockedUntil.value <= 0) {
+            isBlocked.value = false
+            clearInterval(blockTimer)
+            blockTimer = null
+          }
+        }, 1000)
       }
       
       scrollBottom()
-    } catch (e) {
-      console.error("[ChatWidget] Parse failed", e)
+    } else {
+      fetchMessages()
     }
+  } catch (e) {
+    console.error("[ChatWidget] Send failed:", e)
+    inputMessage.value = originalText
   }
-  socket.onclose = () => setTimeout(connectWS, 3000)
 }
 
 onMounted(() => {
@@ -153,10 +189,14 @@ onMounted(() => {
     localStorage.setItem('chat_user_id', storedId)
   }
   myUserId.value = storedId
-  connectWS()
+  
+  fetchMessages()
+  pollInterval = setInterval(fetchMessages, 3000)
 })
 
-onUnmounted(() => { if (socket) socket.close() })
+onUnmounted(() => {
+  if (pollInterval) clearInterval(pollInterval)
+})
 watch(isOpen, (newVal) => { if (newVal) scrollBottom() })
 </script>
 
