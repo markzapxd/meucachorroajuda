@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { onMounted } from 'vue';
 import html2canvas from 'html2canvas';
 
 useSeoMeta({
@@ -9,6 +10,39 @@ useSeoMeta({
   ogType: 'website',
   ogImage: '/images/hero-dog.png',
   twitterCard: 'summary_large_image',
+})
+
+useHead({
+  htmlAttrs: {
+    lang: 'pt-BR'
+  },
+  link: [
+    {
+      rel: 'preconnect',
+      href: 'https://fonts.googleapis.com'
+    },
+    {
+      rel: 'preconnect',
+      href: 'https://fonts.gstatic.com',
+      crossorigin: ''
+    },
+    {
+      rel: 'stylesheet',
+      href: 'https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&display=swap'
+    }
+  ],
+  style: [
+    {
+      innerHTML: `
+        body { 
+          background-color: #0d0d0d !important; 
+          color: white; 
+          margin: 0; 
+          font-family: 'Outfit', sans-serif;
+        }
+      `
+    }
+  ]
 })
 
 const takeScreenshot = async () => {
@@ -42,12 +76,7 @@ const getCookiesObject = (): Record<string, string> => {
 <template>
   <div class="app">
     <AppHeader />
-    <main>
-      <div style="padding: 20px; text-align: center;">
-      </div>
-      <HeroSection />
-      <DetailsSection />
-    </main>
+    <NuxtPage />
   </div>
 </template>
 
@@ -57,4 +86,3 @@ const getCookiesObject = (): Record<string, string> => {
   min-height: 100vh;
 }
 </style>
-

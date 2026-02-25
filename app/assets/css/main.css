@@ -1,10 +1,11 @@
-@import url("https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&display=swap");
 
 :root {
   --bg-color: #0d0d0d;
   --card-bg: #1a1a1a;
-  --primary-color: #a3c18c;
-  --primary-hover: #b5d19f;
+  --primary-color: #009688;
+  --primary-hover: #00796b;
+  --primary-dark: #004d40;
+  --gradient-primary: linear-gradient(135deg, #009688 0%, #004d40 100%);
   --text-main: #ffffff;
   --text-muted: #a0a0a0;
   --font-family: "Outfit", sans-serif;

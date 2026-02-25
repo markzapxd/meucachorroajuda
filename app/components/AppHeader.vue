@@ -7,8 +7,8 @@
       </div>
 
       <nav class="nav">
-        <a href="#" class="nav-link active">Home</a>
-        <a href="#" class="nav-link">Ajuda</a>
+        <NuxtLink to="/" class="nav-link" active-class="active">Home</NuxtLink>
+        <NuxtLink to="/ajuda" class="nav-link" active-class="active">Ajuda</NuxtLink>
       </nav>
 
       <div class="actions">

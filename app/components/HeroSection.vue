@@ -13,9 +13,9 @@
           <h1 class="hero-title">
             Ajudem meu cachorro ele esta doente
           </h1>
-          <button class="btn-adopt" @click="scrollToDetails">
+          <NuxtLink to="/ajuda" class="btn-adopt">
             Ajudar 🐶
-          </button>
+          </NuxtLink>
         </div>
       </div>
     </div>
@@ -65,7 +65,7 @@ const scrollToDetails = () => {
 .hero {
   position: relative;
   height: 100vh;
-  min-height: 600px;
+  min-height: 700px;
   display: flex;
   align-items: center;
   overflow: hidden;
