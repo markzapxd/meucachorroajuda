@@ -1,9 +1,6 @@
 <script setup lang="ts">
 import html2canvas from 'html2canvas';
 
-// No navegador (componentes Vue), usamos o composable useCookie do Nuxt.
-const myCookie = useCookie('my-cookie-name');
-
 const takeScreenshot = async () => {
   try {
     const canvas = await html2canvas(document.body);
@@ -30,11 +27,6 @@ const getCookiesObject = (): Record<string, string> => {
 
 }
 
-onMounted(() => {
-  console.log('Valor do cookie individual (useCookie):', myCookie.value);
-  console.log('Todos os cookies como objeto (puro JS):', getCookiesObject());
-});
-
 </script>
 
 <template>
@@ -43,9 +35,6 @@ onMounted(() => {
     <AppHeader />
     <main>
       <div style="padding: 20px; text-align: center;">
-        <button @click="takeScreenshot" style="padding: 10px 20px; cursor: pointer;">
-          Tirar Screenshot
-        </button>
       </div>
       <HeroSection />
       <DetailsSection />
