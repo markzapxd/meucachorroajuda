@@ -6,7 +6,8 @@ useSeoMeta({
   ogTitle: 'Ajude pitoco',
   description: 'Site feito para ajudar meu cachorro que esta passando por momento dificeis',
   ogDescription: 'Site feito para ajudar meu cachorro que esta passando por momento dificeis',
-  ogImage: '/images/hero.png', // Falback image if available
+  ogType: 'website',
+  ogImage: '/images/hero-dog.png',
   twitterCard: 'summary_large_image',
 })
 
