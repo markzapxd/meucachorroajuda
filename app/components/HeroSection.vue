@@ -3,16 +3,21 @@
     <div class="hero-image-container">
       <video ref="videoRef" autoplay loop playsinline class="hero-video" @loadedmetadata="onVideoLoad">
         <source src="/images/e.mp4" type="video/mp4" />
-        Your browser doe<div class="actions">
-        <button class="btn-try">
-          ver mais
-        </button>
-        <button class="menu-btn">
-          <div class="menu-icon"></div>
-        </button>
-      </div>
+        Your browser does not support the video tag.
       </video>
       <div class="hero-overlay"></div>
+
+      <div class="hero-content">
+        <div class="hero-text-box fade-in">
+          <h3 class="hero-subtitle">PIX</h3>
+          <h1 class="hero-title">
+            Ajudem meu cachorro ele esta doente
+          </h1>
+          <button class="btn-adopt" @click="scrollToDetails">
+            Ajudar 🐶
+          </button>
+        </div>
+      </div>
     </div>
 
     <!-- Audio Control -->
@@ -20,18 +25,6 @@
       <span v-if="isMuted">🔇 Som Desligado</span>
       <span v-else>🔊 Som Ligado</span>
     </button>
-
-    <div class="container hero-content">
-      <div class="hero-text-box fade-in">
-        <h3 class="hero-subtitle">PIX</h3>
-        <h1 class="hero-title">
-          Ajudem meu cachorro ele esta doente
-        </h1>
-        <button class="btn-adopt" @click="scrollToDetails">
-          Ajudar 🐶
-        </button>
-      </div>
-    </div>
   </section>
 </template>
 
@@ -130,9 +123,14 @@ const scrollToDetails = () => {
 }
 
 .hero-content {
-  position: relative;
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
   z-index: 2;
-  width: 100%;
+  display: flex;
+  align-items: center;
   padding-left: 60px;
 }
 
@@ -142,10 +140,11 @@ const scrollToDetails = () => {
 
 .hero-subtitle {
   color: var(--primary-color);
-  font-size: 14px;
+  font-size: 12px;
   letter-spacing: 2px;
   font-weight: 700;
   margin-bottom: 24px;
+  margin-left: 10px;
 }
 
 .hero-title {
@@ -179,8 +178,23 @@ const scrollToDetails = () => {
 }
 
 @media (max-width: 992px) {
+  .hero-image-container {
+    top: 60px;
+    left: 60px;
+    right: 60px;
+    bottom: 60px;
+  }
+
+  .audio-control {
+    bottom: 80px;
+    right: 80px;
+  }
+
   .hero-content {
-    padding-left: 20px;
+    padding-left: 0;
+    display: flex;
+    justify-content: center;
+    text-align: center;
   }
   
   .hero-title {
@@ -189,8 +203,27 @@ const scrollToDetails = () => {
 }
 
 @media (max-width: 768px) {
+  .hero {
+    padding: 16px;
+  }
+
+  .hero-image-container {
+    top: 24px;
+    left: 24px;
+    right: 24px;
+    bottom: 24px;
+    border-radius: 24px;
+  }
+
+  .audio-control {
+    bottom: 40px;
+    right: 40px;
+    font-size: 12px;
+    padding: 8px 16px;
+  }
+
   .hero-title {
-    font-size: 36px;
+    font-size: 32px;
   }
   
   .hero-description {

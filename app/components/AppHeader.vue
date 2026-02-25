@@ -1,6 +1,6 @@
 <template>
   <header class="header">
-    <div class="container header-inner">
+    <div class="container-fluid header-inner">
       <div class="logo">
         <span class="logo-icon">🐾</span>
         <span class="logo-text">meucachorroajuda</span>
@@ -13,7 +13,7 @@
 
       <div class="actions">
         <button class="btn-try">
-          ver mais
+          Especial
         </button>
         <button class="menu-btn">
           <div class="menu-icon"></div>
@@ -25,18 +25,22 @@
 
 <style scoped>
 .header {
-  padding: 24px 0;
-  position: absolute;
+  padding: 16px 0;
+  position: fixed;
   top: 0;
   left: 0;
   right: 0;
   z-index: 100;
+  background: rgba(13, 13, 13, 0.7);
+  backdrop-filter: blur(10px);
+  border-bottom: 1px solid var(--glass-border);
 }
 
 .header-inner {
   display: grid;
   grid-template-columns: 1fr auto 1fr;
   align-items: center;
+  padding: 0 40px;
 }
 
 .logo {
@@ -60,6 +64,7 @@
   border-radius: 100px;
   backdrop-filter: blur(10px);
   border: 1px solid var(--glass-border);
+  justify-self: center;
 }
 
 .nav-link {
@@ -131,6 +136,10 @@
 .menu-icon::after { bottom: -6px; }
 
 @media (max-width: 992px) {
+  .header-inner {
+    grid-template-columns: 1fr auto;
+    padding: 0 24px;
+  }
   .nav {
     display: none;
   }
