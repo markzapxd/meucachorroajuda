@@ -1,5 +1,4 @@
-// app/composables/useChat.ts
-import { ref, onMounted, onUnmounted } from 'vue'
+import { ref, onMounted, onUnmounted, nextTick } from 'vue'
 
 interface ChatMessage {
   id: number
@@ -20,6 +19,33 @@ let useCount = 0
 
 export const useChat = () => {
   const scrollContainer = ref<HTMLElement | null>(null)
+
+  const formatTime = (isoString: string) => {
+    const date = new Date(isoString)
+    return `Hoje às ${date.getHours().toString().padStart(2, '0')}:${date.getMinutes().toString().padStart(2, '0')}`
+  }
+
+  const formatTimeTiny = (isoString: string) => {
+    const date = new Date(isoString)
+    return `${date.getHours().toString().padStart(2, '0')}:${date.getMinutes().toString().padStart(2, '0')}`
+  }
+
+  const isCompact = (msg: any, index: number) => {
+    if (index === 0 || msg.isSystem) return false
+    const prevMsg = messages.value[index - 1]
+    if (!prevMsg || prevMsg.isSystem) return false
+    const timeDiff = new Date(msg.timestamp).getTime() - new Date(prevMsg.timestamp).getTime()
+    return prevMsg.userId === msg.userId && timeDiff < 5 * 60 * 1000
+  }
+
+  const getUserColor = (id: string) => {
+    const colors = ['#00d2ff', '#3BA55D', '#ED4245', '#FAA61A', '#EB459E', '#9B59B6']
+    let hash = 0
+    for (let i = 0; i < id.length; i++) {
+        hash = id.charCodeAt(i) + ((hash << 5) - hash)
+    }
+    return colors[Math.abs(hash) % colors.length]
+  }
 
   const scrollBottom = async () => {
     await nextTick()
@@ -43,7 +69,7 @@ export const useChat = () => {
   }
 
   const sendMessage = async (text: string) => {
-    if (!text.trim() || isBlocked.value) return
+    if (!text.trim() || isBlocked.value) return { success: false }
 
     try {
       const response: any = await $fetch('/api/chat', {
@@ -81,12 +107,12 @@ export const useChat = () => {
       }
     } catch (e) {
       console.error("[useChat] Send failed:", e)
-      return { success: false, error: e }
+      return { success: false }
     }
   }
 
   const initialize = () => {
-    if (process.server) return
+    if (import.meta.server) return
 
     // Load User ID
     let storedId = localStorage.getItem('chat_user_id')
@@ -101,7 +127,7 @@ export const useChat = () => {
     if (!pollInterval) {
       console.log("[useChat] Starting shared polling...")
       fetchMessages()
-      pollInterval = setInterval(fetchMessages, 4000) // Slightly slower for optimization
+      pollInterval = setInterval(fetchMessages, 4000)
     }
   }
 
@@ -123,6 +149,10 @@ export const useChat = () => {
     sendMessage,
     initialize,
     cleanup,
-    scrollBottom
+    scrollBottom,
+    formatTime,
+    formatTimeTiny,
+    isCompact,
+    getUserColor
   }
 }

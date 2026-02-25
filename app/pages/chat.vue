@@ -79,63 +79,22 @@ definePageMeta({
   layout: false
 })
 
-const myUserId = ref('')
+const { 
+  messages, 
+  myUserId, 
+  isBlocked, 
+  blockedUntil, 
+  scrollContainer: messageContainer, 
+  sendMessage: sendChatMessage, 
+  initialize, 
+  cleanup,
+  formatTime,
+  formatTimeTiny,
+  isCompact,
+  getUserColor
+} = useChat()
+
 const inputMessage = ref('')
-const messages = ref<{ id: number; userId: string; text: string; timestamp: string, isSystem?: boolean }[]>([])
-const messageContainer = ref<HTMLElement | null>(null)
-const isBlocked = ref(false)
-const blockedUntil = ref(0)
-let pollInterval: any = null
-let blockTimer: any = null
-
-const formatTime = (isoString: string) => {
-  const date = new Date(isoString)
-  return `Hoje às ${date.getHours().toString().padStart(2, '0')}:${date.getMinutes().toString().padStart(2, '0')}`
-}
-
-const formatTimeTiny = (isoString: string) => {
-  const date = new Date(isoString)
-  return `${date.getHours().toString().padStart(2, '0')}:${date.getMinutes().toString().padStart(2, '0')}`
-}
-
-const isCompact = (msg: any, index: number) => {
-  if (index === 0) return false
-  const prevMsg = messages.value[index - 1]
-  if (!prevMsg) return false
-  const timeDiff = new Date(msg.timestamp).getTime() - new Date(prevMsg.timestamp).getTime()
-  return prevMsg.userId === msg.userId && timeDiff < 5 * 60 * 1000
-}
-
-const getUserColor = (id: string) => {
-  const colors = ['#00d2ff', '#3BA55D', '#ED4245', '#FAA61A', '#EB459E', '#9B59B6']
-  let hash = 0
-  for (let i = 0; i < id.length; i++) {
-    hash = id.charCodeAt(i) + ((hash << 5) - hash)
-  }
-  return colors[Math.abs(hash) % colors.length]
-}
-
-const scrollBottom = async () => {
-  await nextTick()
-  if (messageContainer.value) {
-    messageContainer.value.scrollTop = messageContainer.value.scrollHeight
-  }
-}
-
-const fetchMessages = async () => {
-  try {
-    const data: any = await $fetch('/api/chat')
-    if (data && data.messages) {
-      // Only update if message count changed to avoid unnecessary re-renders
-      if (data.messages.length !== messages.value.length) {
-        messages.value = data.messages
-        scrollBottom()
-      }
-    }
-  } catch (e) {
-    console.error("[ChatPage] Poll failed:", e)
-  }
-}
 
 const sendMessage = async () => {
   const text = inputMessage.value.trim()
@@ -144,68 +103,18 @@ const sendMessage = async () => {
   const originalText = inputMessage.value
   inputMessage.value = '' // Optimistic clear
 
-  try {
-    const response: any = await $fetch('/api/chat', {
-      method: 'POST',
-      body: {
-        userId: myUserId.value,
-        text
-      }
-    })
-    
-    if (response.type === 'error') {
-      // If error (like spam limit), show a system message and restore input
-      messages.value.push({
-        id: Date.now(),
-        userId: 'System',
-        text: response.message,
-        timestamp: new Date().toISOString(),
-        isSystem: true
-      })
-      inputMessage.value = originalText
-      
-      if (response.retryAfter) {
-        isBlocked.value = true
-        blockedUntil.value = response.retryAfter
-        if (blockTimer) clearInterval(blockTimer)
-        blockTimer = setInterval(() => {
-          blockedUntil.value--
-          if (blockedUntil.value <= 0) {
-            isBlocked.value = false
-            clearInterval(blockTimer)
-            blockTimer = null
-          }
-        }, 1000)
-      }
-      
-      scrollBottom()
-    } else {
-      // Fetch immediately to show the new message
-      fetchMessages()
-    }
-  } catch (e) {
-    console.error("[ChatPage] Send failed:", e)
+  const result = await sendChatMessage(text)
+  if (result && !result.success && 'message' in result) {
     inputMessage.value = originalText
   }
 }
 
 onMounted(() => {
-  let storedId = localStorage.getItem('chat_user_id')
-  if (!storedId) {
-    storedId = Math.random().toString(36).substring(2, 10).toUpperCase()
-    localStorage.setItem('chat_user_id', storedId)
-  }
-  myUserId.value = storedId
-  
-  // Initial fetch
-  fetchMessages()
-  
-  // Start polling every 3 seconds
-  pollInterval = setInterval(fetchMessages, 3000)
+  initialize()
 })
 
 onUnmounted(() => {
-  if (pollInterval) clearInterval(pollInterval)
+  cleanup()
 })
 </script>
 
