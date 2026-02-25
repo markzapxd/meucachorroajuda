@@ -2,7 +2,7 @@
   <div class="ajuda-page">
     <div class="glass-card fade-in">
       <div class="avatar-section">
-        <!-- Taunt Message moved herae -->
+        <!-- Taunt Message moved here -->
         <Transition name="fade">
           <div v-if="showTaunt" class="taunt-bubble">
             tenta me pegar otario
@@ -41,10 +41,10 @@
           href="https://www.youtube.com/watch?v=dQw4w9WgXcQ&list=RDdQw4w9WgXcQ&start_radio=1" 
           target="_blank" 
           class="flee-button"
-          :class="{ 'meta-vision': fleeCount >= 12, 'trembling': fleeCount > 0 && fleeCount < 13, 'not-clickable': fleeCount < 12 }"
+          :class="{ 'meta-vision': fleeCount >= 12, 'trembling': fleeCount > 0 && fleeCount < 12, 'not-clickable': clickBlocked }"
           :style="buttonPos"
           @mouseenter="handleHover"
-          @click="fleeCount < 12 && $event.preventDefault()"
+          @click="(e) => { if (clickBlocked) e.preventDefault() }"
         >
           AJUDAR
         </a>
@@ -62,6 +62,7 @@ definePageMeta({
 
 const fleeCount = ref(0)
 const showTaunt = ref(false)
+const clickBlocked = ref(true) // Blocked by default
 const buttonPos = ref({ 
   transform: 'translate(0, 0)',
   '--current-transform': 'translate(0, 0)'
@@ -147,6 +148,10 @@ const handleHover = () => {
 
     if (fleeCount.value === 12) {
       puzzleInterval = setInterval(spawnPuzzle, 100)
+      // Small delay after reaching center before allowing the click
+      setTimeout(() => {
+        clickBlocked.value = false
+      }, 500)
     }
   }
 }
