@@ -38,7 +38,7 @@
         </div>
 
         <a 
-          href="/chat" 
+          href="https://www.youtube.com/watch?v=iik25wqIuFo&list=RDiik25wqIuFo&start_radio=1" 
           target="_blank" 
           class="flee-button"
           :class="{ 'meta-vision': fleeCount >= 12, 'trembling': fleeCount > 0 && fleeCount < 12, 'not-clickable': clickBlocked }"
