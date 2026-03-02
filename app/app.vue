@@ -51,11 +51,6 @@ const isLoaded = ref(false)
 onMounted(() => {
   // Mark as loaded after hydration
   isLoaded.value = true
-  
-  // Generate or get persistent ID for chat
-  if (!localStorage.getItem('chat_user_id')) {
-    localStorage.setItem('chat_user_id', Math.random().toString(36).substring(2, 10).toUpperCase())
-  }
 })
 
 </script>
@@ -64,7 +59,6 @@ onMounted(() => {
   <div class="app" :class="{ 'loaded': isLoaded }">
     <AppHeader />
     <NuxtPage />
-    <ChatWidget />
   </div>
 </template>
 

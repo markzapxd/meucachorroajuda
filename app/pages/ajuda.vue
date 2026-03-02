@@ -1,5 +1,8 @@
 <template>
-  <div class="ajuda-page">
+  <div class="ajuda-page" @click="ensurePlaying">
+    <video ref="bgVideoRef" autoplay loop playsinline class="bg-video">
+      <source src="/images/isagi.mp4" type="video/mp4" />
+    </video>
     <div class="glass-card fade-in">
       <div class="avatar-section">
         <!-- Taunt Message moved here -->
@@ -54,10 +57,28 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onUnmounted } from 'vue'
+import { ref, onUnmounted, onMounted } from 'vue'
 
 definePageMeta({
   layout: false
+})
+
+const bgVideoRef = ref<HTMLVideoElement | null>(null)
+
+const ensurePlaying = () => {
+  if (bgVideoRef.value) {
+    bgVideoRef.value.muted = false;
+    if (bgVideoRef.value.paused) {
+      bgVideoRef.value.play().catch(e => console.log('Erro ao tocar áudio:', e));
+    }
+  }
+}
+
+onMounted(() => {
+  if (bgVideoRef.value) {
+    bgVideoRef.value.muted = false;
+    bgVideoRef.value.play().catch(e => console.log('Autoplay com áudio bloqueado pelo navegador:', e));
+  }
 })
 
 const fleeCount = ref(0)
@@ -163,20 +184,35 @@ onUnmounted(() => {
 
 <style scoped>
 .ajuda-page {
-  min-height: calc(100vh - 80px);
+  position: relative;
+  min-height: 100vh;
   background-color: #0d0d0d;
   display: flex;
   justify-content: center;
   align-items: center;
-  padding: 24px;
+  padding: 80px 24px 24px 24px;
   overflow: hidden;
 }
 
+.bg-video {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center bottom;
+  z-index: 0;
+  opacity: 0.4;
+}
+
 .glass-card {
+  position: relative;
+  z-index: 1;
   background: rgba(255, 255, 255, 0.03);
   backdrop-filter: blur(15px);
   -webkit-backdrop-filter: blur(15px);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(156, 64, 64, 0.1);
   border-radius: 40px;
   padding: 60px;
   display: flex;

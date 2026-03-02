@@ -2,7 +2,7 @@
   <header class="header">
     <div class="container-fluid header-inner">
       <div class="logo">
-        <span class="logo-icon">🐾</span>
+        <img src="/favicon.ico" alt="Logo" class="favicon-logo" />
         <span class="logo-text">meucachorroajuda</span>
       </div>
 
@@ -12,9 +12,6 @@
       </nav>
 
       <div class="actions">
-        <NuxtLink to="/chat" class="btn-try">
-          Chat
-        </NuxtLink>
         <button class="menu-btn">
           <div class="menu-icon"></div>
         </button>
@@ -52,8 +49,10 @@
   flex-shrink: 0;
 }
 
-.logo-icon {
-  font-size: 24px;
+.favicon-logo {
+  width: 24px;
+  height: 24px;
+  object-fit: contain;
 }
 
 .nav {
