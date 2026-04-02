@@ -12,7 +12,7 @@
           :style="tiltStyles.card1"
         >
           <div class="card-image">
-            <img src="/images/orelhakirk.webp" alt="Cachorro doente" />
+            <img src="/images/ilustracao-de-cachorro-triste-fofo-sob-o-cobertor-ao-ar-livre-ai_564714-2042.avif" alt="Cachorro doente" />
           </div>
           <div class="card-content">
             <h3>Situação Crítica</h3>

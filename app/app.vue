@@ -7,7 +7,7 @@ useSeoMeta({
   description: 'Site feito para ajudar meu cachorro que esta passando por momento dificeis',
   ogDescription: 'Site feito para ajudar meu cachorro que esta passando por momento dificeis',
   ogType: 'website',
-  ogImage: '/images/injusticapororelha.webp',
+  ogImage: '/images/madobe_nanami_1.jpg',
   twitterCard: 'summary_large_image',
 })
 
